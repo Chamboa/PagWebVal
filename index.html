@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>4 Meses de Amor</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      text-align: center;
+      background-color: #f9f9f9;
+      color: #333;
+      margin: 0;
+      padding: 20px;
+      transition: background-color 0.5s ease;
+    }
+    h1 {
+      color: #e91e63;
+      text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+    }
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    #menu {
+      display: flex;
+      justify-content: center;
+      margin: 20px auto;
+      padding: 10px;
+      background-color: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .menu-item {
+      margin: 0 15px;
+      padding: 10px 20px;
+      background-color: #e91e63;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-weight: bold;
+    }
+    .menu-item:hover {
+      background-color: #c2185b;
+      transform: translateY(-3px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    .section {
+      display: none;
+      margin-top: 30px;
+    }
+    .active {
+      display: block;
+      animation: fadeIn 0.5s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    #puzzle-container {
+      margin: 20px auto;
+      width: 576px;
+      border: 2px solid #e91e63;
+      border-radius: 10px;
+      padding: 10px;
+      background-color: #fff;
+      position: relative;
+      box-shadow: 0 4px 12px rgba(233, 30, 99, 0.2);
+    }
+    #puzzle-image {
+      display: none;
+    }
+    .difficulty-selector {
+      margin: 10px auto;
+      padding: 10px;
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+    .difficulty-btn {
+      padding: 5px 15px;
+      background-color: #f8bbd0;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .difficulty-btn:hover, .difficulty-btn.active {
+      background-color: #e91e63;
+      color: white;
+    }
+    .message {
+      margin-top: 20px;
+      font-size: 1.2em;
+      color: #e91e63;
+      font-weight: bold;
+    }
+    .puzzle-piece {
+      position: absolute;
+      border: 1px solid #ccc;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .puzzle-piece:hover {
+      transform: scale(1.02);
+    }
+    .poema {
+      display: none;
+      margin-top: 20px;
+      font-style: italic;
+      color: #e91e63;
+      background-color: rgba(255, 255, 255, 0.8);
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+      line-height: 1.6;
+    }
+    #flowers-container {
+      position: relative;
+      width: 600px;
+      height: 400px;
+      margin: 20px auto;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      background: linear-gradient(to bottom, #87ceeb, #e8f4f8);
+    }
+    #flowers-canvas {
+      width: 100%;
+      height: 100%;
+    }
+    .controls {
+      margin: 15px auto;
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+    .control-btn {
+      padding: 8px 16px;
+      background-color: #e91e63;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .control-btn:hover {
+      background-color: #c2185b;
+      transform: translateY(-2px);
+    }
+    .timer {
+      font-size: 1.2em;
+      margin: 10px 0;
+      color: #e91e63;
+    }
+    .moves {
+      font-size: 1.2em;
+      margin: 10px 0;
+      color: #e91e63;
+    }
+    .completion-message {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: rgba(255, 255, 255, 0.9);
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      color: #e91e63;
+      font-size: 1.5em;
+      z-index: 100;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>¡Feliz 4 Meses de Amor!</h1>
+    
+    <div id="menu">
+      <button class="menu-item" onclick="showSection('puzzle-section')">Rompecabezas</button>
+      <button class="menu-item" onclick="showSection('flowers-section')">Flores Amarillas</button>
+    </div>
+    
+    <div id="puzzle-section" class="section active">
+      <p>Armemos este rompecabezas juntos, como armamos nuestra relación.</p>
+      
+      <div class="difficulty-selector">
+        <button class="difficulty-btn active" onclick="changeDifficulty(3)">Fácil</button>
+        <button class="difficulty-btn" onclick="changeDifficulty(4)">Medio</button>
+        <button class="difficulty-btn" onclick="changeDifficulty(5)">Difícil</button>
+      </div>
+      
+      <div class="timer">Tiempo: 00:00</div>
+      <div class="moves">Movimientos: 0</div>
+      
+      <div id="puzzle-container">
+        <img id="puzzle-image" src="./jpg/WhatsApp Image 2025-03-07 at 2.51.08 PM.jpeg" alt="Nuestra foto">
+        <canvas id="puzzle-canvas"></canvas>
+        <div class="completion-message" id="completion-message">
+          ¡Lo lograste! ❤️<br>
+          <button class="control-btn" onclick="closeMessage()">Ver poema</button>
+        </div>
+      </div>
+      
+      <div class="controls">
+        <button class="control-btn" onclick="resetPuzzle()">Reiniciar</button>
+        <button class="control-btn" onclick="showHint()">Pista</button>
+      </div>
+      
+      <p class="message" id="message">¡Completa el rompecabezas para descubrir un mensaje especial!</p>
+      <div class="poema" id="poema">
+        <p>En tus ojos encuentro el cielo,</p>
+        <p>en tu risa, mi consuelo.</p>
+        <p>Cuatro meses a tu lado,</p>
+        <p>mi corazón enamorado.</p>
+        <p>Eres mi sueño, mi razón,</p>
+        <p>contigo nace mi canción.</p>
+        <p>Cada día descubro en ti,</p>
+        <p>mil razones para ser feliz.</p>
+        <p>Te amo hoy y siempre,</p>
+        <p>mi amor eterno, mi presente.</p>
+      </div>
+    </div>
+    
+    <div id="flowers-section" class="section">
+      <h2>Campo de Flores Amarillas</h2>
+      <p>Un paisaje lleno de flores amarillas para ti</p>
+      
+      <div id="flowers-container">
+        <canvas id="flowers-canvas"></canvas>
+      </div>
+      
+      <div class="controls">
+        <button class="control-btn" onclick="addFlower()">Añadir Flor</button>
+        <button class="control-btn" onclick="addButterfly()">Añadir Mariposa</button>
+        <button class="control-btn" onclick="clearCanvas()">Limpiar Todo</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Variables globales
+    let currentSection = 'puzzle-section';
+    let pieces = 3; // Número inicial de piezas (3x3)
+    let puzzlePieces = [];
+    let emptyPiece = { x: 0, y: 0 }; // Pieza vacía
+    let moves = 0;
+    let seconds = 0;
+    let timerInterval;
+    let isShowingHint = false;
+    let hintTimeout;
+
+    // Tamaño de la imagen
+    const imageWidth = 576;
+    const imageHeight = 432;
+
+    // Referencias a elementos del DOM
+    const image = document.getElementById('puzzle-image');
+    const canvas = document.getElementById('puzzle-canvas');
+    const ctx = canvas.getContext('2d');
+    const message = document.getElementById('message');
+    const poema = document.getElementById('poema');
+    const timerElement = document.querySelector('.timer');
+    const movesElement = document.querySelector('.moves');
+    const completionMessage = document.getElementById('completion-message');
+    
+    // Canvas para flores
+    const flowersCanvas = document.getElementById('flowers-canvas');
+    const flowersCtx = flowersCanvas.getContext('2d');
+    
+    // Inicializar el tamaño del canvas de flores
+    flowersCanvas.width = 600;
+    flowersCanvas.height = 400;
+    
+    // Función para mostrar una sección
+    function showSection(sectionId) {
+      document.querySelectorAll('.section').forEach(section => {
+        section.classList.remove('active');
+      });
+      document.getElementById(sectionId).classList.add('active');
+      currentSection = sectionId;
+      
+      if (sectionId === 'flowers-section') {
+        stopTimer();
+        drawLandscape();
+      } else if (sectionId === 'puzzle-section') {
+        resetTimer();
+        startTimer();
+      }
+    }
+    
+    // Cambiar la dificultad del rompecabezas
+    function changeDifficulty(level) {
+      document.querySelectorAll('.difficulty-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      event.target.classList.add('active');
+      
+      pieces = level;
+      resetPuzzle();
+    }
+    
+    // Iniciar el temporizador
+    function startTimer() {
+      stopTimer();
+      timerInterval = setInterval(updateTimer, 1000);
+    }
+    
+    // Detener el temporizador
+    function stopTimer() {
+      clearInterval(timerInterval);
+    }
+    
+    // Reiniciar el temporizador
+    function resetTimer() {
+      stopTimer();
+      seconds = 0;
+      updateTimerDisplay();
+    }
+    
+    // Actualizar el temporizador
+    function updateTimer() {
+      seconds++;
+      updateTimerDisplay();
+    }
+    
+    // Actualizar la visualización del temporizador
+    function updateTimerDisplay() {
+      const minutes = Math.floor(seconds / 60);
+      const remainingSeconds = seconds % 60;
+      timerElement.textContent = `Tiempo: ${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+    }
+    
+    // Reiniciar el contador de movimientos
+    function resetMoves() {
+      moves = 0;
+      updateMovesDisplay();
+    }
+    
+    // Actualizar la visualización de movimientos
+    function updateMovesDisplay() {
+      movesElement.textContent = `Movimientos: ${moves}`;
+    }
+    
+    // Configurar el canvas
+    canvas.width = imageWidth;
+    canvas.height = imageHeight;
+
+    // Cargar la imagen y preparar el rompecabezas
+    image.onload = function () {
+      createPuzzle();
+      startTimer();
+    };
+
+    // Crear las piezas del rompecabezas
+    function createPuzzle() {
+      puzzlePieces = [];
+      const pieceWidth = canvas.width / pieces;
+      const pieceHeight = canvas.height / pieces;
+
+      // Limpiar el canvas
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Dividir la imagen en piezas
+      for (let i = 0; i < pieces; i++) {
+        for (let j = 0; j < pieces; j++) {
+          const x = i * pieceWidth;
+          const y = j * pieceHeight;
+
+          // Crear un canvas temporal para cada pieza
+          const tempCanvas = document.createElement('canvas');
+          const tempCtx = tempCanvas.getContext('2d');
+          tempCanvas.width = pieceWidth;
+          tempCanvas.height = pieceHeight;
+
+          // Dibujar la porción de la imagen en el canvas temporal
+          tempCtx.drawImage(
+            image,
+            x, y, pieceWidth, pieceHeight, // Coordenadas de la imagen
+            0, 0, pieceWidth, pieceHeight // Coordenadas del canvas temporal
+          );
+
+          // Guardar la pieza
+          puzzlePieces.push({
+            x: x,
+            y: y,
+            width: pieceWidth,
+            height: pieceHeight,
+            originalX: x,
+            originalY: y,
+            image: tempCanvas,
+          });
+        }
+      }
+
+      // Eliminar la última pieza para crear el espacio vacío
+      emptyPiece = puzzlePieces.pop();
+      shufflePuzzle();
+      drawPuzzle();
+    }
+
+    // Barajar las piezas
+    function shufflePuzzle() {
+      for (let i = puzzlePieces.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [puzzlePieces[i], puzzlePieces[j]] = [puzzlePieces[j], puzzlePieces[i]];
+      }
+
+      // Asignar posiciones aleatorias a las piezas
+      puzzlePieces.forEach((piece, index) => {
+        const row = Math.floor(index / pieces);
+        const col = index % pieces;
+        piece.x = col * piece.width;
+        piece.y = row * piece.height;
+      });
+    }
+
+    // Dibujar el rompecabezas
+    function drawPuzzle() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      // Dibujar cuadrícula de fondo
+      ctx.fillStyle = '#f0f0f0';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.strokeStyle = '#ccc';
+      ctx.lineWidth = 1;
+      
+      const pieceWidth = canvas.width / pieces;
+      const pieceHeight = canvas.height / pieces;
+      
+      for (let i = 0; i <= pieces; i++) {
+        ctx.beginPath();
+        ctx.moveTo(i * pieceWidth, 0);
+        ctx.lineTo(i * pieceWidth, canvas.height);
+        ctx.stroke();
+        
+        ctx.beginPath();
+        ctx.moveTo(0, i * pieceHeight);
+        ctx.lineTo(canvas.width, i * pieceHeight);
+        ctx.stroke();
+      }
+      
+      // Dibujar piezas
+      puzzlePieces.forEach(piece => {
+        ctx.drawImage(piece.image, piece.x, piece.y);
+        
+        // Añadir borde a cada pieza
+        ctx.strokeStyle = '#e91e63';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(piece.x, piece.y, piece.width, piece.height);
+      });
+      
+      // Si estamos mostrando una pista, dibujar la imagen completa semi-transparente
+      if (isShowingHint) {
+        ctx.globalAlpha = 0.3;
+        ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+        ctx.globalAlpha = 1.0;
+      }
+    }
+
+    // Verificar si el rompecabezas está completo
+    function checkPuzzle() {
+      let isComplete = true;
+      for (let i = 0; i < puzzlePieces.length; i++) {
+        const piece = puzzlePieces[i];
+        if (piece.x !== piece.originalX || piece.y !== piece.originalY) {
+          isComplete = false;
+          break;
+        }
+      }
+
+      if (isComplete) {
+        stopTimer();
+        completionMessage.style.display = "block";
+      }
+    }
+    
+    // Cerrar mensaje de finalización y mostrar poema
+    function closeMessage() {
+      completionMessage.style.display = "none";
+      message.style.display = "none"; // Ocultar el mensaje inicial
+      poema.style.display = "block"; // Mostrar el poema
+      
+      // Dibujar imagen completa
+      ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+    }
+
+    // Mover una pieza
+    function movePiece(piece) {
+      const dx = Math.abs(piece.x - emptyPiece.x);
+      const dy = Math.abs(piece.y - emptyPiece.y);
+
+      // Verificar si la pieza está adyacente al espacio vacío
+      if ((dx === piece.width && dy === 0) || (dy === piece.height && dx === 0)) {
+        // Incrementar contador de movimientos
+        moves++;
+        updateMovesDisplay();
+        
+        // Intercambiar posiciones
+        [piece.x, piece.y, emptyPiece.x, emptyPiece.y] = [emptyPiece.x, emptyPiece.y, piece.x, piece.y];
+        drawPuzzle();
+        checkPuzzle();
+      }
+    }
+    
+    // Mostrar una pista (imagen completa durante unos segundos)
+    function showHint() {
+      if (isShowingHint) return;
+      
+      isShowingHint = true;
+      drawPuzzle();
+      
+      hintTimeout = setTimeout(() => {
+        isShowingHint = false;
+        drawPuzzle();
+      }, 2000);
+    }
+    
+    // Reiniciar el rompecabezas
+    function resetPuzzle() {
+      resetTimer();
+      resetMoves();
+      startTimer();
+      createPuzzle();
+      message.style.display = "block";
+      poema.style.display = "none";
+      completionMessage.style.display = "none";
+    }
+
+    // Evento para hacer clic en una pieza
+    canvas.addEventListener('click', (event) => {
+      const rect = canvas.getBoundingClientRect();
+      const mouseX = event.clientX - rect.left;
+      const mouseY = event.clientY - rect.top;
+
+      puzzlePieces.forEach(piece => {
+        if (
+          mouseX >= piece.x && mouseX <= piece.x + piece.width &&
+          mouseY >= piece.y && mouseY <= piece.y + piece.height
+        ) {
+          movePiece(piece);
+        }
+      });
+    });
+    
+    // Funciones para la sección de flores
+    function drawLandscape() {
+      // Dibujar cielo
+      const gradient = flowersCtx.createLinearGradient(0, 0, 0, flowersCanvas.height);
+      gradient.addColorStop(0, '#87CEEB'); // Cielo arriba
+      gradient.addColorStop(0.7, '#E0F7FA'); // Cielo abajo
+      flowersCtx.fillStyle = gradient;
+      flowersCtx.fillRect(0, 0, flowersCanvas.width, flowersCanvas.height);
+      
+      // Dibujar sol
+      flowersCtx.fillStyle = '#FFD700';
+      flowersCtx.beginPath();
+      flowersCtx.arc(100, 80, 40, 0, Math.PI * 2);
+      flowersCtx.fill();
+      
+      // Dibujar rayos del sol
+      flowersCtx.strokeStyle = '#FFD700';
+      flowersCtx.lineWidth = 3;
+      for (let i = 0; i < 8; i++) {
+        const angle = (i * Math.PI) / 4;
+        flowersCtx.beginPath();
+        flowersCtx.moveTo(
+          100 + Math.cos(angle) * 45,
+          80 + Math.sin(angle) * 45
+        );
+        flowersCtx.lineTo(
+          100 + Math.cos(angle) * 65,
+          80 + Math.sin(angle) * 65
+        );
+        flowersCtx.stroke();
+      }
+      
+      // Dibujar colinas
+      flowersCtx.fillStyle = '#8BC34A';
+      flowersCtx.beginPath();
+      flowersCtx.moveTo(0, 350);
+      flowersCtx.bezierCurveTo(150, 280, 300, 320, 600, 350);
+      flowersCtx.lineTo(600, 400);
+      flowersCtx.lineTo(0, 400);
+      flowersCtx.closePath();
+      flowersCtx.fill();
+      
+      // Dibujar colina más lejana
+      flowersCtx.fillStyle = '#689F38';
+      flowersCtx.beginPath();
+      flowersCtx.moveTo(0, 300);
+      flowersCtx.bezierCurveTo(200, 250, 400, 280, 600, 320);
+      flowersCtx.lineTo(600, 350);
+      flowersCtx.bezierCurveTo(300, 320, 150, 280, 0, 350);
+      flowersCtx.closePath();
+      flowersCtx.fill();
+      
+      // Dibujar nubes
+      drawCloud(150, 120, 70);
+      drawCloud(400, 80, 50);
+      drawCloud(300, 150, 60);
+    }
+    
+    // Dibujar nube
+    function drawCloud(x, y, size) {
+      flowersCtx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+      flowersCtx.beginPath();
+      flowersCtx.arc(x, y, size * 0.5, 0, Math.PI * 2);
+      flowersCtx.arc(x + size * 0.4, y - size * 0.2, size * 0.4, 0, Math.PI * 2);
+      flowersCtx.arc(x + size * 0.6, y + size * 0.1, size * 0.5, 0, Math.PI * 2);
+      flowersCtx.arc(x + size, y, size * 0.3, 0, Math.PI * 2);
+      flowersCtx.closePath();
+      flowersCtx.fill();
+    }
+    
+    // Dibujar flor amarilla
+    function drawFlower(x, y) {
+      // Tallo
+      flowersCtx.strokeStyle = '#4CAF50';
+      flowersCtx.lineWidth = 3;
+      flowersCtx.beginPath();
+      flowersCtx.moveTo(x, y);
+      flowersCtx.lineTo(x, y - 30);
+      flowersCtx.stroke();
+      
+      // Hojas
+      flowersCtx.fillStyle = '#4CAF50';
+      flowersCtx.beginPath();
+      flowersCtx.ellipse(x - 10, y - 15, 5, 10, Math.PI / 4, 0, Math.PI * 2);
+      flowersCtx.fill();
+      
+      // Pétalos
+      flowersCtx.fillStyle = '#FFEB3B';
+      for (let i = 0; i < 8; i++) {
+        const angle = (i * Math.PI) / 4;
+        flowersCtx.beginPath();
+        flowersCtx.ellipse(
+          x + Math.cos(angle) * 5,
+          y - 30 + Math.sin(angle) * 5,
+          5, 10, angle, 0, Math.PI * 2
+        );
+        flowersCtx.fill();
+      }
+      
+      // Centro de la flor
+      flowersCtx.fillStyle = '#FF9800';
+      flowersCtx.beginPath();
+      flowersCtx.arc(x, y - 30, 5, 0, Math.PI * 2);
+      flowersCtx.fill();
+    }
+    
+    // Dibujar mariposa
+    function drawButterfly(x, y) {
+      const colors = ['#F06292', '#BA68C8', '#64B5F6', '#FFD54F'];
+      const color = colors[Math.floor(Math.random() * colors.length)];
+      
+      // Alas
+      flowersCtx.fillStyle = color;
+      
+      // Ala superior izquierda
+      flowersCtx.beginPath();
+      flowersCtx.ellipse(x - 10, y - 5, 10, 15, Math.PI / 6, 0, Math.PI * 2);
+      flowersCtx.fill();
+      
+      // Ala superior derecha
+      flowersCtx.beginPath();
+      flowersCtx.ellipse(x + 10, y - 5, 10, 15, -Math.PI / 6, 0, Math.PI * 2);
+      flowersCtx.fill();
+      
+      // Ala inferior izquierda
+      flowersCtx.beginPath();
+      flowersCtx.ellipse(x - 8, y + 8, 8, 12, Math.PI / 3, 0, Math.PI * 2);
+      flowersCtx.fill();
+      
+      // Ala inferior derecha
+      flowersCtx.beginPath();
+      flowersCtx.ellipse(x + 8, y + 8, 8, 12, -Math.PI / 3, 0, Math.PI * 2);
+      flowersCtx.fill();
+      
+      // Cuerpo
+      flowersCtx.fillStyle = '#212121';
+      flowersCtx.beginPath();
+      flowersCtx.ellipse(x, y, 2, 15, 0, 0, Math.PI * 2);
+      flowersCtx.fill();
+      
+      // Antenas
+      flowersCtx.strokeStyle = '#212121';
+      flowersCtx.lineWidth = 1;
+      flowersCtx.beginPath();
+      flowersCtx.moveTo(x, y - 10);
+      flowersCtx.lineTo(x - 5, y - 20);
+      flowersCtx.moveTo(x, y - 10);
+      flowersCtx.lineTo(x + 5, y - 20);
+      flowersCtx.stroke();
+    }
+    
+    // Añadir una flor en posición aleatoria
+    function addFlower() {
+      const x = Math.random() * 550 + 25;
+      const y = Math.random() * 50 + 330;
+      drawFlower(x, y);
+    }
+    
+    // Añadir una mariposa en posición aleatoria
+    function addButterfly() {
+      const x = Math.random() * 500 + 50;
+      const y = Math.random() * 200 + 100;
+      drawButterfly(x, y);
+    }
+    
+    // Limpiar el canvas de flores y redibujar el paisaje
+    function clearCanvas() {
+      flowersCtx.clearRect(0, 0, flowersCanvas.width, flowersCanvas.height);
+      drawLandscape();
+    }
+    
+    // Iniciar con la imagen default
+    if (image.complete) {
+      createPuzzle();
+      startTimer();
+    }
+    
+    // Inicializar el paisaje
+    drawLandscape();
+  </script>
+</body>
+</html>
