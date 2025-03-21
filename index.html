@@ -267,10 +267,6 @@
     let isShowingHint = false;
     let hintTimeout;
 
-    // Tamaño de la imagen
-    const imageWidth = 576;
-    const imageHeight = 432;
-
     // Referencias a elementos del DOM
     const image = document.getElementById('puzzle-image');
     const canvas = document.getElementById('puzzle-canvas');
@@ -289,6 +285,20 @@
     flowersCanvas.width = 600;
     flowersCanvas.height = 400;
     
+    // Función para redimensionar el canvas del rompecabezas
+    function resizeCanvas() {
+      const container = document.getElementById('puzzle-container');
+      const containerWidth = container.clientWidth;
+      const containerHeight = containerWidth * (image.height / image.width);
+
+      canvas.width = containerWidth;
+      canvas.height = containerHeight;
+
+      if (puzzlePieces.length > 0) {
+        createPuzzle();
+      }
+    }
+
     // Función para mostrar una sección
     function showSection(sectionId) {
       document.querySelectorAll('.section').forEach(section => {
@@ -359,12 +369,9 @@
       movesElement.textContent = `Movimientos: ${moves}`;
     }
     
-    // Configurar el canvas
-    canvas.width = imageWidth;
-    canvas.height = imageHeight;
-
     // Cargar la imagen y preparar el rompecabezas
     image.onload = function () {
+      resizeCanvas();
       createPuzzle();
       startTimer();
     };
@@ -560,6 +567,9 @@
       });
     });
     
+    // Redimensionar el canvas cuando cambie el tamaño de la ventana
+    window.addEventListener('resize', resizeCanvas);
+    
     // Funciones para la sección de flores
     function drawLandscape() {
       // Dibujar cielo
@@ -733,6 +743,7 @@
     
     // Iniciar con la imagen default
     if (image.complete) {
+      resizeCanvas();
       createPuzzle();
       startTimer();
     }
